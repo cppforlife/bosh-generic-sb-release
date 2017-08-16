@@ -1,0 +1,7 @@
+- type: replace
+  path: /releases/name=generic-odb-adapter/url?
+  value: file://.
+
+- type: replace
+  path: /releases/name=generic-odb-adapter/version
+  value: create

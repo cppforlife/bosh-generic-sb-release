@@ -1,0 +1,13 @@
+---
+name: generic-odb-adapter
+
+templates:
+  config.json: config/config.json
+
+packages:
+- odb-service-adapter # todo do not depend on pkg
+
+properties:
+  manifest:
+    description: "Entire manifest (name will be ignored)"
+    default: ""

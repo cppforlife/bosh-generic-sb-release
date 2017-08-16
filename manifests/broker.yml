@@ -1,0 +1,111 @@
+name: zookeeper-broker
+
+releases:
+- name: generic-odb-adapter
+  version: latest
+- name: on-demand-service-broker
+  version: "0.16.1"
+  url: git+https://github.com/pivotal-cf/on-demand-service-broker-release
+
+stemcells:
+- alias: default
+  os: ubuntu-trusty
+  version: latest
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  canary_watch_time: 1000-90000
+  update_watch_time: 1000-90000
+
+instance_groups:
+- name: broker
+  azs: [z1]
+  instances: 1
+  jobs:
+  - name: fake-cf
+    release: generic-odb-adapter
+    properties: {}
+
+  - name: generic-odb-adapter
+    release: generic-odb-adapter
+    properties:
+      # todo variables inside manifest
+      manifest: ((si_manifest))
+
+  - name: broker
+    release: on-demand-service-broker
+    properties:
+      disable_ssl_cert_verification: false
+      port: 8080
+      username: zookeeper-broker
+      password: ((broker_password))
+      bosh:
+        url: https://((director_ip)):25555
+        root_ca_cert: ((director_ssl.ca))
+        authentication:
+          uaa:
+            url: https://((director_ip)):8443 # todo
+            client_id: ((director_client))
+            client_secret: ((director_client_secret))
+      cf: # todo
+        root_ca_cert: ((uaa_ssl_ca))
+        url: http://localhost:8081 # todo
+        authentication:
+          url: https://((director_ip)):8443
+          client_credentials:
+            client_id: ((director_client))
+            secret: ((director_client_secret))
+      service_catalog:
+        bindable: true
+        id: 548966e5-h657-4d65-8773-7b48886ca97
+        service_name: zookeeper
+        service_description: Dedicated zookeeper
+        plan_updatable: true
+        tags:
+        - zookeeper
+        plans:
+        - plan_id: 07cf3296-b8e3-4c6b-8d74-e9rt877jdfh
+          name: default
+          description: "Default"
+          instance_groups: # todo
+          - name: mysql
+            instances: 1
+            azs:
+            - z1
+            networks:
+            - dedicated-mysql
+            persistent_disk_type: 15GB
+            vm_type: small
+            vm_extensions:
+            - 30GB_ephemeral_disk
+      service_deployment:
+        releases:
+        - jobs:
+          - zookeeper # todo
+          name: zookeeper
+          version: 0.0.5 # todo
+        stemcell:
+          os: ubuntu-trusty
+          version: 3421.4 # todo
+
+  networks:
+  - name: default
+  stemcell: default
+  vm_type: default
+
+- name: upgrade-all-service-instances
+  azs: [z1]
+  lifecycle: errand
+  instances: 1
+  jobs:
+  - name: upgrade-all-service-instances
+    release: on-demand-service-broker
+  networks:
+  - name: default
+  stemcell: default
+  vm_type: default
+
+variables:
+- name: broker_password
+  type: password

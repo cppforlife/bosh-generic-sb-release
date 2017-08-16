@@ -1,0 +1,8 @@
+---
+name: fake-cf
+
+dependencies:
+- golang-1.7
+
+files:
+- fake-cf/*.go

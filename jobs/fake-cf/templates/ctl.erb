@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -e
+
+export LOG_DIR=/var/vcap/sys/log/fake-cf
+export RUN_DIR=/var/vcap/sys/run/fake-cf
+export PIDFILE=/var/vcap/sys/run/fake-cf/pid
+
+case $1 in
+
+  start)
+    mkdir -p $LOG_DIR $RUN_DIR
+    chown -R vcap:vcap $LOG_DIR $RUN_DIR
+
+    echo $$ > $PIDFILE
+
+    exec chpst -u vcap:vcap \
+      /var/vcap/packages/fake-cf/bin/fake-cf \
+      >>/var/vcap/sys/log/fake-cf/stdout.log \
+      2>>/var/vcap/sys/log/fake-cf/stderr.log
+    ;;
+
+  stop)
+    if [ -f $PIDFILE ]; then
+      kill -9 `cat $PIDFILE` || true
+      rm -f $PIDFILE
+    fi
+    ;;
+
+  *)
+    echo "Usage: $0 {start|stop}"
+    exit 1
+    ;;
+
+esac
+exit 0

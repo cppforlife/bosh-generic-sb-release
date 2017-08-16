@@ -1,0 +1,5 @@
+<%=
+
+JSON.dump("manifest" => p("manifest"))
+
+%>

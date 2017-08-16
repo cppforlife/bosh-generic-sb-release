@@ -1,0 +1,44 @@
+---
+releases:
+- name: zookeeper
+  version: 0.0.5
+  url: https://bosh.io/d/github.com/cppforlife/zookeeper-release?v=0.0.5
+  sha1: 65a07b7526f108b0863d76aada7fc29e2c9e2095
+
+stemcells:
+- alias: default
+  os: ubuntu-trusty
+  version: 3421.4
+
+update:
+  canaries: 2
+  max_in_flight: 1
+  canary_watch_time: 5000-60000
+  update_watch_time: 5000-60000
+
+instance_groups:
+- name: zookeeper
+  azs: [z1, z2, z3]
+  instances: 5
+  jobs:
+  - name: zookeeper
+    release: zookeeper
+    properties: {}
+  vm_type: default
+  stemcell: default
+  persistent_disk: 10240
+  networks:
+  - name: default
+
+- name: smoke-tests
+  azs: [z1]
+  lifecycle: errand
+  instances: 1
+  jobs:
+  - name: smoke-tests
+    release: zookeeper
+    properties: {}
+  vm_type: default
+  stemcell: default
+  networks:
+  - name: default
