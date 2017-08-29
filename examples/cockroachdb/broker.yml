@@ -1,4 +1,4 @@
-name: zookeeper-broker
+name: cockroachdb-broker
 
 releases:
 - name: generic-odb-adapter
@@ -31,13 +31,19 @@ instance_groups:
     release: generic-odb-adapter
     properties:
       service_instance_manifest: ((si_manifest))
+      service_binding_manifest: ((sb_manifest))
+      director:
+        host: ((director_ip))
+        cert: ((director_ssl))
+        client: ((director_client))
+        client_secret: ((director_client_secret))
 
   - name: broker
     release: on-demand-service-broker
     properties:
       disable_ssl_cert_verification: false
       port: 8080
-      username: zookeeper-broker
+      username: cockroachdb-broker
       password: ((broker_password))
       bosh:
         url: https://((director_ip)):25555
@@ -57,36 +63,31 @@ instance_groups:
             secret: ((director_client_secret))
       service_catalog:
         bindable: true
-        id: 548966e5-h657-4d65-8773-7b48886ca97
-        service_name: zookeeper
-        service_description: Dedicated zookeeper
+        id: 97e8336e-172c-4bf8-8574-96fbbd3d0f58
+        service_name: cockroachdb
+        service_description: Dedicated CockroachDB
         plan_updatable: true
-        tags:
-        - zookeeper
+        tags: [database]
         plans:
-        - plan_id: 07cf3296-b8e3-4c6b-8d74-e9rt877jdfh
+        - plan_id: bcfb07be-4559-48b2-ac10-ca490f7324cd
           name: default
           description: "Default"
-          instance_groups: # todo
-          - name: mysql
+          instance_groups:
+          - name: unused
             instances: 1
-            azs:
-            - z1
-            networks:
-            - dedicated-mysql
-            persistent_disk_type: 15GB
-            vm_type: small
-            vm_extensions:
-            - 30GB_ephemeral_disk
+            azs: [unused]
+            networks: [unused]
+            persistent_disk_type: unused
+            vm_type: unused
+            vm_extensions: [unused]
       service_deployment:
         releases:
-        - jobs:
-          - zookeeper # todo
-          name: zookeeper
-          version: 0.0.5 # todo
+        - jobs: [unused]
+          name: unused
+          version: unused
         stemcell:
-          os: ubuntu-trusty
-          version: 3421.4 # todo
+          os: unused
+          version: unused
 
   networks:
   - name: default

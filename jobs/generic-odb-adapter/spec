@@ -2,12 +2,32 @@
 name: generic-odb-adapter
 
 templates:
-  config.json: config/config.json
+  config.json.erb: config/config.json
 
 packages:
 - odb-service-adapter # todo do not depend on pkg
 
 properties:
-  manifest:
-    description: "Entire manifest (name will be ignored)"
+  service_instance_manifest:
+    description: |
+      Entire service instance manifest (`name` key will be ignored).
+      If manifest cannot be parsed as YAML, adapter assumes that it's base64 encoded to avoid variable interpolation.
+
+  service_binding_manifest:
+    description: |
+      Entire service binding manifest (`name` key will be ignored). If not specified, service cannot have bindings.
+      If specified, each service binding deployment expects to have two errands: `create-service-binding` and `delete-service-binding`.
+      `create-service-binding` errand is expected to produce valid service broker API binding response as specified
+      in <https://github.com/openservicebrokerapi/servicebroker/blob/v2.12/spec.md#body-6>.
+      If manifest cannot be parsed as YAML, adapter assumes that it's base64 encoded to avoid variable interpolation.
+
+  director.host:
+    description: "Director host"
+    example: "192.168.50.4"
+  director.cert.ca:
+    description: "CA certificate to verify Director certificate (uses system CA certificates by default)"
     default: ""
+  director.client:
+    description: "Director client (username in case of basic auth)"
+  director.client_secret:
+    description: "Director client secret (password in case of basic auth)"

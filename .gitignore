@@ -18,3 +18,4 @@ pkg/
 
 tests/creds.yml
 tests/state.json
+examples/*/creds.yml

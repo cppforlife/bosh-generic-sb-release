@@ -1,0 +1,54 @@
+---
+name: # set by broker
+
+releases:
+- name: cockroachdb
+  version: 2+dev.4
+
+stemcells:
+- alias: default
+  os: ubuntu-trusty
+  version: "3445.2"
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  canary_watch_time: 5000-120000
+  update_watch_time: 5000-120000
+
+instance_groups:
+- name: bindings
+  azs: [z1]
+  instances: 1
+  # lifecycle: errand todo fix for the director
+  jobs:
+  - name: create-service-binding
+    release: cockroachdb
+    consumes:
+      conn:      {from: conn,      deployment: ((si_deployment_name))}
+      root_user: {from: root_user, deployment: ((si_deployment_name))}
+      database:  {from: database,  deployment: ((si_deployment_name))}
+    properties:
+      user: user_((sb_deployment_name_alphanum_friendly))
+      cert: ((user_cert))
+  - name: delete-service-binding
+    release: cockroachdb
+    consumes:
+      conn:      {from: conn,      deployment: ((si_deployment_name))}
+      root_user: {from: root_user, deployment: ((si_deployment_name))}
+    properties:
+      user: user_((sb_deployment_name_alphanum_friendly))
+      cert: ((user_cert))
+  vm_type: default
+  stemcell: default
+  networks:
+  - name: default
+
+variables:
+- name: user_cert
+  type: certificate
+  options:
+    ca: /((si_director_name))/((si_deployment_name))/ca # todo better approach
+    common_name: user_((sb_deployment_name_alphanum_friendly)) # todo generate automatically
+    extended_key_usage:
+    - client_auth

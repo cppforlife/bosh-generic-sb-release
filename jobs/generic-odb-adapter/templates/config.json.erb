@@ -1,0 +1,34 @@
+<%=
+
+require 'json'
+require 'yaml'
+require 'base64'
+
+si_manifest = p("service_instance_manifest")
+sb_manifest = ""
+
+if !YAML.load(si_manifest).is_a?(Hash)
+  si_manifest = Base64.decode64(si_manifest)
+end
+
+if_p("service_binding_manifest") do |m|
+	if !YAML.load(m).is_a?(Hash)
+	  sb_manifest = Base64.decode64(m)
+	else
+		sb_manifest = m
+	end
+end
+
+JSON.dump(
+	"ServiceInstanceManifest" => si_manifest,
+	"ServiceBindingManifest" => sb_manifest,
+
+	"Director" => (sb_manifest.size == 0 ? {} : {
+		"Host" => p("director.host"),
+		"CACert" => p("director.cert.ca"),
+		"Client" => p("director.client"),
+		"ClientSecret" => p("director.client_secret"),
+	}),
+)
+
+%>
