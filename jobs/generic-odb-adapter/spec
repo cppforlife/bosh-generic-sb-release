@@ -21,6 +21,29 @@ properties:
       in <https://github.com/openservicebrokerapi/servicebroker/blob/v2.12/spec.md#body-6>.
       If manifest cannot be parsed as YAML, adapter assumes that it's base64 encoded to avoid variable interpolation.
 
+  service_instance_params:
+    description: Parameter definitions used for service instance creation and update.
+    example:
+    - name: max_connections
+      ops:
+      - type: replace
+        path: /instance_groups/name=server/jobs/name=server/properties/max_connections?
+        value: ((value))
+    - name: auto_vacuum
+      ops:
+      - type: replace
+        path: /instance_groups/name=server/jobs/name=server/properties/autovacuum?
+        value: true
+
+  service_binding_params:
+    description: Parameter definitions used for service binding creation.
+    example:
+    - name: privileges
+      ops:
+      - type: replace
+        path: /instance_groups/name=server/jobs/name=server/properties/privileges?
+        value: ((value))
+
   director.host:
     description: "Director host"
     example: "192.168.50.4"

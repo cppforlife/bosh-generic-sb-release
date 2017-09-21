@@ -32,6 +32,7 @@ instance_groups:
     properties:
       service_instance_manifest: ((si_manifest))
       service_binding_manifest: ((sb_manifest))
+      service_binding_params: ((sb_params))
       director:
         host: ((director_ip))
         cert: ((director_ssl))

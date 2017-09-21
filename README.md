@@ -8,3 +8,4 @@ See `tests/run.sh` for example usage.
 - plan level properties...
 - versions for development
 - why odb asks for services on startup?
+- parameter types

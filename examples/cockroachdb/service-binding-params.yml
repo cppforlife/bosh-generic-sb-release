@@ -1,0 +1,12 @@
+- name: read_only
+  type: boolean
+  ops:
+  - type: replace
+    path: /instance_groups/name=bindings/jobs/name=create-service-binding/properties/privileges?
+    value: [SELECT]
+- name: custom_privileges
+  type: array # of strings
+  ops:
+  - type: replace
+    path: /instance_groups/name=bindings/jobs/name=create-service-binding/properties/privileges?
+    value: ((value))

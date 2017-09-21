@@ -22,6 +22,7 @@ echo "-----> `date`: Deploy"
   --var-file director_ssl.ca=<(bosh int ~/workspace/deployments/vbox/creds.yml --path /director_ssl/ca) \
   --var-file si_manifest=<(cat examples/cockroachdb/service-instance.yml|base64) \
   --var-file sb_manifest=<(cat examples/cockroachdb/service-binding.yml|base64) \
+  --var-file sb_params=<(cat examples/cockroachdb/service-binding-params.yml|base64) \
   --vars-store ./examples/cockroachdb/creds.yml )
 
 echo "-----> `date`: Use SB CLI"

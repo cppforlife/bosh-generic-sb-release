@@ -25,8 +25,15 @@ type Director struct {
 
 type Config struct {
 	ServiceInstanceManifest string
+	ServiceInstanceParams   []Param
 	ServiceBindingManifest  string
+	ServiceBindingParams    []Param
 	Director                DirectorConfig
+}
+
+type Param struct {
+	Name string
+	Ops  []interface{}
 }
 
 type DirectorConfig struct {
@@ -112,6 +119,10 @@ var (
 	stripNonAlphaNum = regexp.MustCompile("[^a-zA-Z0-9]+")
 )
 
+type argsJSON struct {
+	Parameters map[string]interface{} `json:"parameters"`
+}
+
 func (b Broker) BrokerCommand(args []string) ([]byte, error) {
 	switch args[1] {
 	case "generate-manifest":
@@ -134,6 +145,18 @@ func (b Broker) BrokerCommand(args []string) ([]byte, error) {
 
 		manifest = bytes.Replace(manifest,
 			[]byte(`((si_deployment_name_dns_friendly))`), []byte(servDep.DeploymentNameDNSFriendly()), -1)
+
+		var args4 argsJSON
+
+		err = json.Unmarshal([]byte(args[4]), &args4)
+		if err != nil {
+			return nil, fmt.Errorf("unmarshaling service deployment request params: %s", err)
+		}
+
+		manifest, err = NewParameters(b.cfg.ServiceInstanceParams, b.Director).Apply(manifest, args4.Parameters)
+		if err != nil {
+			return nil, fmt.Errorf("applying service instance parameters: %s", err)
+		}
 
 		return manifest, nil
 
@@ -161,6 +184,18 @@ func (b Broker) BrokerCommand(args []string) ([]byte, error) {
 			bindingManifest, err = b.adjustNameInManifest(b.cfg.ServiceBindingManifest, bindingDeploymentName)
 			if err != nil {
 				return nil, fmt.Errorf("adjusting binding deployment name: %s", err)
+			}
+
+			var args5 argsJSON
+
+			err = json.Unmarshal([]byte(args[4]), &args5)
+			if err != nil {
+				return nil, fmt.Errorf("unmarshaling service binding request params: %s", err)
+			}
+
+			bindingManifest, err = NewParameters(b.cfg.ServiceBindingParams, b.Director).Apply(bindingManifest, args5.Parameters)
+			if err != nil {
+				return nil, fmt.Errorf("applying service binding parameters: %s", err)
 			}
 
 			_, err = b.Director.Execute([]string{
@@ -273,4 +308,91 @@ func (d Director) Execute(args []string, stdin io.Reader) ([]byte, error) {
 	}
 
 	return outBuf.Bytes(), nil
+
+}
+
+func (d Director) ExecuteWithBash(args []string, stdin io.Reader, env []string) ([]byte, error) {
+	boshCmd := strings.Join(append([]string{d.BinaryPath}, args...), " ")
+	cmd := exec.Command("bash", "-c", boshCmd)
+
+	cmd.Env = append(os.Environ(),
+		"BOSH_ENVIRONMENT="+d.cfg.Host,
+		"BOSH_CA_CERT="+d.cfg.CACert,
+		"BOSH_CLIENT="+d.cfg.Client,
+		"BOSH_CLIENT_SECRET="+d.cfg.ClientSecret,
+		"BOSH_NON_INTERACTIVE=true",
+		"HOME=/tmp",
+	)
+
+	if env != nil {
+		cmd.Env = append(cmd.Env, env...)
+	}
+
+	var outBuf, errBuf bytes.Buffer
+	cmd.Stdout = &outBuf
+	cmd.Stderr = &errBuf
+	cmd.Stdin = stdin
+
+	err := cmd.Run()
+	if err != nil {
+		return nil, fmt.Errorf("executing bosh: %s (stderr: %s)", err, errBuf.String())
+	}
+
+	return outBuf.Bytes(), nil
+}
+
+type Parameters struct {
+	params   []Param
+	director Director
+}
+
+func NewParameters(params []Param, director Director) Parameters {
+	return Parameters{params, director}
+}
+
+func (p Parameters) Apply(manifest []byte, givenParams map[string]interface{}) ([]byte, error) {
+	for name, value := range givenParams {
+		param, err := p.findParam(name)
+		if err != nil {
+			return nil, err
+		}
+
+		jsonValue, err := json.Marshal(value)
+		if err != nil {
+			return nil, fmt.Errorf("marshaling service deployment request param value: %s", err)
+		}
+
+		opsBytes, err := yaml.Marshal(param.Ops)
+		if err != nil {
+			return nil, fmt.Errorf("marshaling service deployment request ops: %s", err)
+		}
+
+		interpolatedOps, err := p.director.Execute(
+			[]string{"int", "-", "-v", fmt.Sprintf("value=%s", jsonValue)},
+			bytes.NewReader(opsBytes),
+		)
+		if err != nil {
+			return nil, fmt.Errorf("interpolating create service param value: %s", err)
+		}
+
+		manifest, err = p.director.ExecuteWithBash(
+			[]string{"int", "-", "-o", `<(echo "$SB_OPS")`},
+			bytes.NewReader(manifest),
+			[]string{"SB_OPS=" + string(interpolatedOps)},
+		)
+		if err != nil {
+			return nil, fmt.Errorf("interpolating create service params: %s", err)
+		}
+	}
+
+	return manifest, nil
+}
+
+func (p Parameters) findParam(name string) (Param, error) {
+	for _, param := range p.params {
+		if param.Name == name {
+			return param, nil
+		}
+	}
+	return Param{}, fmt.Errorf("unexpected request param '%s'", name)
 }
