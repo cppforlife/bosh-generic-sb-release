@@ -1,9 +1,0 @@
----
-name: odb-service-adapter
-
-dependencies:
-- golang-1.7
-
-files:
-- "**/*.go"
-- bosh-cli-2.0.31-linux-amd64

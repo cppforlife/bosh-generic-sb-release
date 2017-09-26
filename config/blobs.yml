@@ -1,7 +1,4 @@
 bosh-cli-2.0.31-linux-amd64:
   size: 27259934
+  object_id: 7d44ca20-ba58-405e-60d7-1cf78c8cc358
   sha: b41f555b87b9898d501a29c995dc5eb8563d4308
-go1.7.4.linux-amd64.tar.gz:
-  size: 84021919
-  object_id: d4ade504-1e84-468d-46ee-993d52599f5a
-  sha: 2e5baf03d1590e048c84d1d5b4b6f2540efaaea1

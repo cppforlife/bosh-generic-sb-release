@@ -1,7 +1,7 @@
 - type: replace
-  path: /releases/name=generic-odb-adapter/url?
+  path: /releases/name=bosh-generic-sb/url?
   value: file://.
 
 - type: replace
-  path: /releases/name=generic-odb-adapter/version
+  path: /releases/name=bosh-generic-sb/version
   value: create

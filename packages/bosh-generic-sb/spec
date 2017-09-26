@@ -1,0 +1,9 @@
+---
+name: bosh-generic-sb
+
+dependencies:
+- golang-1.8-linux
+
+files:
+- "**/*.go"
+- bosh-cli-2.0.31-linux-amd64

@@ -1,0 +1,7 @@
+- type: replace
+  path: /releases/name=cf-mysql/version
+  value: 36.3.0
+
+- type: replace
+  path: /stemcells/alias=default/version
+  value: 3363.31

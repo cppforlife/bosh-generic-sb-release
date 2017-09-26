@@ -1,0 +1,5 @@
+check process bosh-generic-sb
+  with pidfile /var/vcap/sys/run/bpm/bosh-generic-sb/bosh-generic-sb.pid
+  start program "/var/vcap/jobs/bpm/bin/bpm start bosh-generic-sb"
+  stop program "/var/vcap/jobs/bpm/bin/bpm stop bosh-generic-sb"
+  group vcap

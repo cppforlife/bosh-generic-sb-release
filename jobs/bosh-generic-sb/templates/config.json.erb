@@ -1,0 +1,54 @@
+<%=
+
+require 'json'
+require 'yaml'
+require 'base64'
+
+si_manifest = p("service_instance_manifest")
+si_params = []
+sb_manifest = ""
+sb_params = []
+
+if !YAML.load(si_manifest).is_a?(Hash)
+  si_manifest = Base64.decode64(si_manifest)
+end
+
+if_p("service_binding_manifest") do |m|
+	if !YAML.load(m).is_a?(Hash)
+	  sb_manifest = Base64.decode64(m)
+	else
+		sb_manifest = m
+	end
+end
+
+if_p("service_instance_params") do |val|
+	si_params = YAML.load(Base64.decode64(val))
+end
+
+if_p("service_binding_params") do |val|
+	sb_params = YAML.load(Base64.decode64(val))
+end
+
+JSON.dump(
+	"HTTP" => {
+		"Username" => p("http.username"),
+		"Password" => p("http.password"),
+
+		"Host" => p("http.host"),
+		"Port" => p("http.port"),
+	},
+
+	"ServiceInstanceManifest" => si_manifest,
+	"ServiceInstanceParams"   => si_params,
+	"ServiceBindingManifest"  => sb_manifest,
+	"ServiceBindingParams"    => sb_params,
+
+	"Director" => {
+		"Host" => p("director.host"),
+		"CACert" => p("director.cert.ca"),
+		"Client" => p("director.client"),
+		"ClientSecret" => p("director.client_secret"),
+	},
+)
+
+%>

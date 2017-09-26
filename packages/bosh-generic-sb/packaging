@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e -x
+
+source /var/vcap/packages/golang-1.8-linux/bosh/compile.env
+
+mkdir ../src && cp -a * ../src/ && mv ../src ./src
+mkdir -p $BOSH_INSTALL_TARGET/bin
+
+go build -o $BOSH_INSTALL_TARGET/bin/sb src/broker-cmd/main.go
+
+mv bosh-cli-2.0.31-linux-amd64 $BOSH_INSTALL_TARGET/bin/bosh
+chmod +x $BOSH_INSTALL_TARGET/bin/bosh

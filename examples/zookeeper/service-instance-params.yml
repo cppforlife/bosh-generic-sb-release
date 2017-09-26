@@ -1,0 +1,16 @@
+- name: nodes
+  type: integer
+  ops:
+  - type: replace
+    path: /instance_groups/name=zookeeper/instances
+    value: ((value))
+
+- name: include-status-errand
+  type: boolean
+  ops:
+  - type: replace
+    path: /instance_groups/name=zookeeper/jobs/-
+    value:
+    - name: status
+      release: zookeeper
+      properties: {}

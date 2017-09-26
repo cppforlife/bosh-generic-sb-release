@@ -9,3 +9,4 @@ See `tests/run.sh` for example usage.
 - versions for development
 - why odb asks for services on startup?
 - parameter types
+- https broker url

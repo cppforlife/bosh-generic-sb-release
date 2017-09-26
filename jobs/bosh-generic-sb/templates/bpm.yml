@@ -1,0 +1,8 @@
+processes:
+  bosh-generic-sb:
+    executable: /var/vcap/packages/bosh-generic-sb/bin/sb
+    args:
+    - /var/vcap/jobs/bosh-generic-sb/config/config.json
+    env:
+    - PATH=/var/vcap/packages/bosh-generic-sb/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    - HOME=/var/vcap/data/bosh-generic-sb
