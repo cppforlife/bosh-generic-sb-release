@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e -x
+
+go fmt bosh-generic-sb/{broker,main}
+
+go build -o pkg/test bosh-generic-sb/main

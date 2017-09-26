@@ -100,3 +100,5 @@ Note that service instance create and update parameters are will be configured t
 - parameter types
 - https broker url
 - uaa integration
+- multi node setup
+- async bind/ubind

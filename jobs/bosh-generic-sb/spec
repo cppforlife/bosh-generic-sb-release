@@ -21,44 +21,59 @@ properties:
   http.port:
     description: Listen port
     default: "8080"
-  # todo tls required
-  # todo multi instance setup
 
-  service_instance_manifest:
-    description: |
-      Entire service instance manifest (`name` key will be ignored).
-      If manifest cannot be parsed as YAML, adapter assumes that it's base64 encoded to avoid variable interpolation.
-
-  service_binding_manifest:
-    description: |
-      Entire service binding manifest (`name` key will be ignored). If not specified, service cannot have bindings.
-      If specified, each service binding deployment expects to have two errands: `create-service-binding` and `delete-service-binding`.
-      `create-service-binding` errand is expected to produce valid service broker API binding response as specified
-      in <https://github.com/openservicebrokerapi/servicebroker/blob/v2.12/spec.md#body-6>.
-      If manifest cannot be parsed as YAML, adapter assumes that it's base64 encoded to avoid variable interpolation.
-
-  service_instance_params:
-    description: Parameter definitions used for service instance creation and update.
+  services:
+    default: []
     example:
-    - name: max_connections
-      ops:
-      - type: replace
-        path: /instance_groups/name=server/jobs/name=server/properties/max_connections?
-        value: ((value))
-    - name: auto_vacuum
-      ops:
-      - type: replace
-        path: /instance_groups/name=server/jobs/name=server/properties/autovacuum?
-        value: true
+    - id: cockroachdb
+      name: CockroachDB
+      description: Basic CockroachDB
+      plans:
+      - id: default
+        name: default
+        service_instance_manifest: ((si_manifest))
+        service_instance_params: ((si_params))
+        service_binding_manifest: ((sb_manifest))
+        service_binding_params: ((sb_params))
 
-  service_binding_params:
-    description: Parameter definitions used for service binding creation.
-    example:
-    - name: privileges
-      ops:
-      - type: replace
-        path: /instance_groups/name=server/jobs/name=server/properties/privileges?
-        value: ((value))
+    description: |
+      List of services and their plans.
+
+      services[].plans[].si_manifest:
+        description: |
+          Entire service instance manifest (`name` key will be ignored).
+          If manifest cannot be parsed as YAML, adapter assumes that it's base64 encoded to avoid variable interpolation.
+
+      services[].plans[].si_params:
+        description: Parameter definitions used for service instance creation and update.
+        example:
+        - name: max_connections
+          ops:
+          - type: replace
+            path: /instance_groups/name=server/jobs/name=server/properties/max_connections?
+            value: ((value))
+        - name: auto_vacuum
+          ops:
+          - type: replace
+            path: /instance_groups/name=server/jobs/name=server/properties/autovacuum?
+            value: true
+
+      services[].plans[].sb_manifest:
+        description: |
+          Entire service binding manifest (`name` key will be ignored). If not specified, service cannot have bindings.
+          If specified, each service binding deployment expects to have two errands: `create-service-binding` and `delete-service-binding`.
+          `create-service-binding` errand is expected to produce valid service broker API binding response as specified
+          in <https://github.com/openservicebrokerapi/servicebroker/blob/v2.12/spec.md#body-6>.
+          If manifest cannot be parsed as YAML, adapter assumes that it's base64 encoded to avoid variable interpolation.
+
+      services[].plans[].sb_params:
+        description: Parameter definitions used for service binding creation.
+        example:
+        - name: privileges
+          ops:
+          - type: replace
+            path: /instance_groups/name=server/jobs/name=server/properties/privileges?
+            value: ((value))
 
   director.host:
     description: "Director host"

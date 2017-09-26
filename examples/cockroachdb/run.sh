@@ -20,8 +20,9 @@ echo "-----> `date`: Deploy"
   -v director_client_secret=$(bosh int ~/workspace/deployments/vbox/creds.yml --path /admin_password) \
   --var-file director_ssl.ca=<(bosh int ~/workspace/deployments/vbox/creds.yml --path /director_ssl/ca) \
   -v broker_name=cockroachdb-broker \
-  -v service_name=CockroachDB \
-  -v service_description=CockroachDB \
+  -v srv_id=cockroachdb \
+  -v srv_name=CockroachDB \
+  -v srv_description=CockroachDB \
   --var-file si_manifest=<(cat examples/cockroachdb/service-instance.yml|base64) \
   -v si_params=null \
   --var-file sb_manifest=<(cat examples/cockroachdb/service-binding.yml|base64) \

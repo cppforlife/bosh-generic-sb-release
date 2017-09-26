@@ -2,6 +2,8 @@
 
 set -e
 
+which sb-cli
+
 echo "-----> `date`: Upload stemcell"
 bosh -n upload-stemcell "https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent?v=3445.7" \
   --sha1 4c0670b318ca4c394e72037e05f49cc14d369636 \
@@ -20,8 +22,9 @@ echo "-----> `date`: Deploy"
   -v director_client_secret=$(bosh int ~/workspace/deployments/vbox/creds.yml --path /admin_password) \
   --var-file director_ssl.ca=<(bosh int ~/workspace/deployments/vbox/creds.yml --path /director_ssl/ca) \
   -v broker_name=zookeeper-broker \
-  -v service_name=Zookeeper \
-  -v service_description=Zookeeper \
+  -v srv_id=zookeeper \
+  -v srv_name=Zookeeper \
+  -v srv_description=Zookeeper \
   --var-file si_manifest=<(wget -O- https://raw.githubusercontent.com/cppforlife/zookeeper-release/master/manifests/zookeeper.yml|bosh int - -o examples/zookeeper/fixes.yml|base64) \
   --var-file si_params=<(cat examples/zookeeper/service-instance-params.yml|base64) \
   -v sb_manifest=null \

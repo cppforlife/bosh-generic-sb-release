@@ -31,15 +31,23 @@ instance_groups:
     properties:
       http:
         password: ((broker_password))
-      service_instance_manifest: ((si_manifest))
-      service_instance_params: ((si_params))
-      service_binding_manifest: ((sb_manifest))
-      service_binding_params: ((sb_params))
       director:
         host: ((director_ip))
         cert: ((director_ssl))
         client: ((director_client))
         client_secret: ((director_client_secret))
+      services:
+      - id: ((srv_id))
+        name: ((srv_name))
+        description: ((srv_description))
+        plans:
+        - id: default
+          name: default
+          description: default
+          si_manifest: ((si_manifest))
+          si_params: ((si_params))
+          sb_manifest: ((sb_manifest))
+          sb_params: ((sb_params))
 
   networks:
   - name: default

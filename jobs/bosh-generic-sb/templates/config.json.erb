@@ -4,29 +4,48 @@ require 'json'
 require 'yaml'
 require 'base64'
 
-si_manifest = p("service_instance_manifest")
-si_params = []
-sb_manifest = ""
-sb_params = []
+services = p("services")
 
-if !YAML.load(si_manifest).is_a?(Hash)
-  si_manifest = Base64.decode64(si_manifest)
+service_keys       = ["id", "name", "description", "plans"].sort
+plan_keys_req      = ["id", "name", "description", "si_manifest"].sort
+plan_keys_optional = ["si_params", "sb_manifest", "sb_params"].sort
+
+if !services.is_a?(Array)
+  raise "Expected `services` to be an array"
 end
 
-if_p("service_binding_manifest") do |m|
-	if !YAML.load(m).is_a?(Hash)
-	  sb_manifest = Base64.decode64(m)
-	else
-		sb_manifest = m
-	end
-end
+services.each_with_index do |service, i|
+  if service_keys != service.keys.sort
+    raise "Expected `services[#{i}]` to only have '#{service_keys.inspect}' keys"
+  end
 
-if_p("service_instance_params") do |val|
-	si_params = YAML.load(Base64.decode64(val))
-end
+  if !service["plans"].is_a?(Array)
+    raise "Expected `services[#{i}].plans` to be an array"
+  end
 
-if_p("service_binding_params") do |val|
-	sb_params = YAML.load(Base64.decode64(val))
+  service["plans"].each_with_index do |plan, j|
+    if plan_keys_req != (plan.keys - plan_keys_optional).sort
+      raise "Expected `services[#{i}].plans[#{j}]` to have '#{plan_keys_req.inspect}' keys"
+    end
+
+    if !YAML.load(plan["si_manifest"]).is_a?(Hash)
+      plan["si_manifest"] = Base64.decode64(plan["si_manifest"])
+    end
+
+    if !plan["si_params"].nil?
+      plan["si_params"] = YAML.load(Base64.decode64(plan["si_params"]))
+    end
+
+    if !plan["sb_manifest"].nil?
+      if !YAML.load(plan["sb_manifest"]).is_a?(Hash)
+        plan["sb_manifest"] = Base64.decode64(plan["sb_manifest"])
+      end
+    end
+
+    if !plan["sb_params"].nil?
+      plan["sb_params"] = YAML.load(Base64.decode64(plan["sb_params"]))
+    end
+  end
 end
 
 JSON.dump(
@@ -38,17 +57,16 @@ JSON.dump(
 		"Port" => p("http.port"),
 	},
 
-	"ServiceInstanceManifest" => si_manifest,
-	"ServiceInstanceParams"   => si_params,
-	"ServiceBindingManifest"  => sb_manifest,
-	"ServiceBindingParams"    => sb_params,
+  "Director" => {
+    "Host" => p("director.host"),
+    "CACert" => p("director.cert.ca"),
+    "Client" => p("director.client"),
+    "ClientSecret" => p("director.client_secret"),
+  },
 
-	"Director" => {
-		"Host" => p("director.host"),
-		"CACert" => p("director.cert.ca"),
-		"Client" => p("director.client"),
-		"ClientSecret" => p("director.client_secret"),
-	},
+  "Broker" => {
+    "Services" => services,
+  },
 )
 
 %>

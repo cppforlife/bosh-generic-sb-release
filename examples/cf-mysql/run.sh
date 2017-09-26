@@ -20,8 +20,9 @@ echo "-----> `date`: Deploy"
   -v director_client_secret=$(bosh int ~/workspace/deployments/vbox/creds.yml --path /admin_password) \
   --var-file director_ssl.ca=<(bosh int ~/workspace/deployments/vbox/creds.yml --path /director_ssl/ca) \
   -v broker_name=cf-mysql-broker \
-  -v service_name="CF MySQL" \
-  -v service_description="CF MySQL" \
+  -v srv_id=cf-mysql \
+  -v srv_name="CF MySQL" \
+  -v srv_description="CF MySQL" \
   --var-file si_manifest=<(wget -O- https://raw.githubusercontent.com/cloudfoundry/cf-mysql-deployment/develop/cf-mysql-deployment.yml|bosh int - -o examples/cf-mysql/fixes.yml|base64) \
   -v si_params=null \
   -v sb_manifest=null \
