@@ -1,0 +1,25 @@
+name: bosh-generic-sb
+version: 0.0.2
+commit_hash: f9114e8
+uncommitted_changes: false
+jobs:
+- name: bosh-generic-sb
+  version: 4359658bcc5ed968afcc3cf9eedf5ef4afcb03e2
+  fingerprint: 4359658bcc5ed968afcc3cf9eedf5ef4afcb03e2
+  sha1: 62d9e43d202a2a24cb0d0b8a4a4fa33ecbd35ac4
+packages:
+- name: bosh-generic-sb
+  version: dd118e8a9f17c9a05bd9cb392be6b4c49413df89
+  fingerprint: dd118e8a9f17c9a05bd9cb392be6b4c49413df89
+  sha1: 8c2dd11ac1b23de0a509dc073655de1428930213
+  dependencies:
+  - golang-1.8-linux
+- name: golang-1.8-linux
+  version: 1509998fbf5c66cb8fc361a479beafb41ef8cc14
+  fingerprint: 1509998fbf5c66cb8fc361a479beafb41ef8cc14
+  sha1: 3d8d63ef92977b3e4ec1ac71a555e7374078fb80
+  dependencies: []
+license:
+  version: 2c3206ebe427f7d8106e46ae76ab64d591cf1b6b
+  fingerprint: 2c3206ebe427f7d8106e46ae76ab64d591cf1b6b
+  sha1: e97ff2e9d88f808cb5974310acc84fc31d8cc692
