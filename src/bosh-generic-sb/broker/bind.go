@@ -17,10 +17,6 @@ func (b *BrokerAPIImpl) Bind(ctx context.Context, instanceID, bindingID string,
 	return b.broker.Bind(instanceID, bindingID, details)
 }
 
-type cliErrandResultJSON struct{ Tables []cliTableJSON }
-type cliTableJSON struct{ Rows []cliErrandResultRowJSON }
-type cliErrandResultRowJSON struct{ Stdout string }
-
 func (b BrokerImpl) Bind(instanceID, bindingID string, details brokerapi.BindDetails) (brokerapi.Binding, error) {
 	planConf, err := b.cfg.FindPlan(details.ServiceID, details.PlanID)
 	if err != nil {
@@ -70,25 +66,5 @@ func (b BrokerImpl) Bind(instanceID, bindingID string, details brokerapi.BindDet
 		return brokerapi.Binding{}, fmt.Errorf("deploying service binding deployment: %s", err)
 	}
 
-	bindingOutput, err := b.director.Execute([]string{
-		"-d", depName.String(),
-		"run-errand",
-		"create-service-binding",
-		"--column", "stdout",
-		"--json",
-	}, nil)
-	if err != nil {
-		return brokerapi.Binding{}, fmt.Errorf("running service binding errand: %s", err)
-	}
-
-	var result cliErrandResultJSON
-
-	err = json.Unmarshal(bindingOutput, &result)
-	if err != nil {
-		return brokerapi.Binding{}, fmt.Errorf("unmarshaling errand result: %s", err)
-	}
-
-	creds := json.RawMessage([]byte(result.Tables[0].Rows[0].Stdout))
-
-	return brokerapi.Binding{Credentials: creds}, nil
+	return errandBinding{depName, b.director}.Create()
 }

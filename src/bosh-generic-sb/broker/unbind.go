@@ -26,13 +26,9 @@ func (b BrokerImpl) Unbind(instanceID, bindingID string, details brokerapi.Unbin
 
 	depName := bindingDeploymentName{bindingID}
 
-	_, err = b.director.Execute([]string{
-		"-d", depName.String(),
-		"run-errand",
-		"delete-service-binding",
-	}, nil)
+	err = errandBinding{depName, b.director}.Delete()
 	if err != nil {
-		return fmt.Errorf("running service binding errand: %s", err)
+		return err
 	}
 
 	_, err = b.director.Execute([]string{"-d", depName.String(), "delete-deployment"}, nil)

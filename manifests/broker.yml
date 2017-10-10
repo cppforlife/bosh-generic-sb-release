@@ -23,9 +23,6 @@ instance_groups:
   azs: [z1]
   instances: 1
   jobs:
-  - name: bpm
-    release: bpm
-    properties: {}
   - name: bosh-generic-sb
     release: bosh-generic-sb
     properties:
@@ -57,3 +54,10 @@ instance_groups:
 variables:
 - name: broker_password
   type: password
+
+addons:
+- name: bpm
+  jobs:
+  - name: bpm
+    release: bpm
+    properties: {}
