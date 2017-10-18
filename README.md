@@ -45,7 +45,7 @@ Use [`sb-cli`](https://github.com/cppforlife/sb-cli) to talk to issue SB command
 ```
 $ export SB_BROKER_URL=http://$(bosh -d cockroachdb-broker is --column ips|head -1|tr -d '[:space:]'):8080
 $ export SB_BROKER_USERNAME=broker
-$ export SB_BROKER_PASSWORD=$(bosh int creds.yml --path /broker_password)
+$ export SB_BROKER_PASSWORD=$(bosh int ./examples/cockroachdb/creds.yml --path /broker_password)
 
 # List available services and their plans
 $ sb-cli services
