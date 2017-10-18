@@ -3,7 +3,7 @@ name: # set by broker
 
 releases:
 - name: cockroachdb
-  version: 2+dev.4
+  version: latest
 
 stemcells:
 - alias: default
