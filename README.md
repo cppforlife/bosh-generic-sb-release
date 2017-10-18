@@ -22,11 +22,12 @@ Each SB API call maps to one or more BOSH commands:
 Configure and deploy service broker:
 
 ```
+$ director_creds_file=~/vbox/creds.yml
 $ bosh -n -d cockroachdb-broker deploy ./manifests/broker.yml -o ./manifests/dev.yml \
   -v director_ip=192.168.50.6 \
   -v director_client=admin \
-  -v director_client_secret=$(bosh int ~/vbox/creds.yml --path /admin_password) \
-  --var-file director_ssl.ca=<(bosh int ~/vbox/creds.yml --path /director_ssl/ca) \
+  -v director_client_secret=$(bosh int $director_creds_file --path /admin_password) \
+  --var-file director_ssl.ca=<(bosh int $director_creds_file --path /director_ssl/ca) \
   -v broker_name=cockroachdb-broker \
   -v srv_id=cockroachdb \
   -v srv_name=CockroachDB \
