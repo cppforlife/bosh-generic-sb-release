@@ -15,11 +15,13 @@ if [[ "$(which sb-cli)X" == "X" ]]; then
   exit 1
 fi
 
-echo "-----> `date`: Upload stemcell"
-bosh -n upload-stemcell "https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent?v=3363.31" \
-  --sha1 03c6981d894e5c53554643ea4316c56a724ac8f7 \
-  --name bosh-warden-boshlite-ubuntu-trusty-go_agent \
-  --version 3363.31
+if [[ "${skip_stemcell_upload}X" == "X" ]]; then
+  echo "-----> `date`: Upload stemcell"
+  bosh -n upload-stemcell "https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent?v=3363.31" \
+    --sha1 03c6981d894e5c53554643ea4316c56a724ac8f7 \
+    --name bosh-warden-boshlite-ubuntu-trusty-go_agent \
+    --version 3363.31
+fi
 
 echo "-----> `date`: Delete previous deployment"
 bosh -n -d cf-mysql-broker delete-deployment --force

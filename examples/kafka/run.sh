@@ -21,11 +21,13 @@ if [[ ! -d $kafka_release_dir ]]; then
   exit 1
 fi
 
-echo "-----> `date`: Upload stemcell"
-bosh -n upload-stemcell "https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent?v=3445.7" \
-  --sha1 4c0670b318ca4c394e72037e05f49cc14d369636 \
-  --name bosh-warden-boshlite-ubuntu-trusty-go_agent \
-  --version 3445.7
+if [[ "${skip_stemcell_upload}X" == "X" ]]; then
+  echo "-----> `date`: Upload stemcell"
+  bosh -n upload-stemcell "https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent?v=3445.7" \
+    --sha1 4c0670b318ca4c394e72037e05f49cc14d369636 \
+    --name bosh-warden-boshlite-ubuntu-trusty-go_agent \
+    --version 3445.7
+fi
 
 echo "-----> `date`: Delete previous deployment"
 bosh -n -d zookeeper-broker delete-deployment --force
