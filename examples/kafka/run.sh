@@ -2,6 +2,19 @@
 
 set -e
 
+example_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $example_dir/../..
+
+director_creds_file=${director_creds_file:-~/workspace/deployments/vbox/creds.yml}
+if [[ ! -f $director_creds_file ]]; then
+  echo "Missing file \$director_creds_file = $director_creds_file"
+  exit 1
+fi
+if [[ "$(which sb-cli)X" == "X" ]]; then
+  echo "Please install sb-cli from https://github.com/cppforlife/sb-cli"
+  exit 1
+fi
+
 echo "-----> `date`: Upload stemcell"
 bosh -n upload-stemcell "https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent?v=3445.7" \
   --sha1 4c0670b318ca4c394e72037e05f49cc14d369636 \
@@ -13,7 +26,8 @@ echo "-----> `date`: Delete previous deployment"
 #rm -f creds.yml
 
 echo "-----> `date`: Deploy"
-( set -e; cd ./../..;
+( set -e
+  broker_creds_file=$example_dir/broker-creds.yml
   bosh -n -d kafka-broker deploy ./manifests/broker.yml -o ./manifests/dev.yml \
   -v director_ip=192.168.56.6 \
   -v director_client=admin \
@@ -27,12 +41,12 @@ echo "-----> `date`: Deploy"
   -v si_params=null \
   --var-file sb_manifest=<(cat ~/workspace/kafka-release/manifests/broker/topic.yml|base64) \
   --var-file sb_params=<(cat ~/workspace/kafka-release/manifests/broker/topic-params.yml|base64) \
-  --vars-store ./examples/kafka/creds.yml )
+  --vars-store $broker_creds_file )
 
 echo "-----> `date`: Use SB CLI"
 export SB_BROKER_URL=http://$(bosh -d kafka-broker is --column ips|head -1|tr -d '[:space:]'):8080
 export SB_BROKER_USERNAME=broker
-export SB_BROKER_PASSWORD=$(bosh int creds.yml --path /broker_password)
+export SB_BROKER_PASSWORD=$(bosh int $broker_creds_file --path /broker_password)
 
 sb-cli services
 

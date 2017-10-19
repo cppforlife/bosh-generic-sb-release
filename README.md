@@ -19,9 +19,10 @@ Each SB API call maps to one or more BOSH commands:
 
 ## Deploy
 
-Configure and deploy service broker:
+Configure and deploy CockroachDB service broker:
 
 ```
+$ broker_creds_file=./examples/cockroachdb/creds.yml
 $ bosh -n -d cockroachdb-broker deploy ./manifests/broker.yml -o ./manifests/dev.yml \
   -v director_ip=192.168.50.6 \
   -v director_client=admin \
@@ -35,7 +36,7 @@ $ bosh -n -d cockroachdb-broker deploy ./manifests/broker.yml -o ./manifests/dev
   -v si_params=null \
   --var-file sb_manifest=<(cat examples/cockroachdb/service-binding.yml|base64) \
   --var-file sb_params=<(cat examples/cockroachdb/service-binding-params.yml|base64) \
-  --vars-store ./examples/cockroachdb/creds.yml
+  --vars-store $broker_creds_file
 ```
 
 ## Usage
@@ -45,7 +46,7 @@ Use [`sb-cli`](https://github.com/cppforlife/sb-cli) to talk to issue SB command
 ```
 $ export SB_BROKER_URL=http://$(bosh -d cockroachdb-broker is --column ips|head -1|tr -d '[:space:]'):8080
 $ export SB_BROKER_USERNAME=broker
-$ export SB_BROKER_PASSWORD=$(bosh int ./examples/cockroachdb/creds.yml --path /broker_password)
+$ export SB_BROKER_PASSWORD=$(bosh int $broker_creds_file --path /broker_password)
 
 # List available services and their plans
 $ sb-cli services
