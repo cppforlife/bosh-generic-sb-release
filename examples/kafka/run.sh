@@ -15,6 +15,12 @@ if [[ "$(which sb-cli)X" == "X" ]]; then
   exit 1
 fi
 
+kafka_release_dir=${kafka_release_dir:-~/workspace/kafka-release}
+if [[ ! -d $kafka_release_dir ]]; then
+  echo "Missing file \$kafka_release_dir = $kafka_release_dir"
+  exit 1
+fi
+
 echo "-----> `date`: Upload stemcell"
 bosh -n upload-stemcell "https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent?v=3445.7" \
   --sha1 4c0670b318ca4c394e72037e05f49cc14d369636 \
@@ -22,25 +28,25 @@ bosh -n upload-stemcell "https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu
   --version 3445.7
 
 echo "-----> `date`: Delete previous deployment"
-#bosh -n -d kafka-broker delete-deployment --force
-#rm -f creds.yml
+bosh -n -d zookeeper-broker delete-deployment --force
+broker_creds_file=$example_dir/broker-creds.yml
+rm -f $broker_creds_file
 
 echo "-----> `date`: Deploy"
 ( set -e
-  broker_creds_file=$example_dir/broker-creds.yml
   bosh -n -d kafka-broker deploy ./manifests/broker.yml -o ./manifests/dev.yml \
   -v director_ip=192.168.56.6 \
   -v director_client=admin \
-  -v director_client_secret=$(bosh int ~/workspace/deployments/vbox/creds.yml --path /admin_password) \
-  --var-file director_ssl.ca=<(bosh int ~/workspace/deployments/vbox/creds.yml --path /director_ssl/ca) \
+  -v director_client_secret=$(bosh int $director_creds_file --path /admin_password) \
+  --var-file director_ssl.ca=<(bosh int $director_creds_file --path /director_ssl/ca) \
   -v broker_name=kafka-broker \
   -v srv_id=kafka \
   -v srv_name=Kafka \
   -v srv_description=Kafka \
-  --var-file si_manifest=<(cat ~/workspace/kafka-release/manifests/example.yml|base64) \
+  --var-file si_manifest=<(cat $kafka_release_dir/manifests/example.yml|base64) \
   -v si_params=null \
-  --var-file sb_manifest=<(cat ~/workspace/kafka-release/manifests/broker/topic.yml|base64) \
-  --var-file sb_params=<(cat ~/workspace/kafka-release/manifests/broker/topic-params.yml|base64) \
+  --var-file sb_manifest=<(cat $kafka_release_dir/manifests/broker/topic.yml|base64) \
+  --var-file sb_params=<(cat $kafka_release_dir/manifests/broker/topic-params.yml|base64) \
   --vars-store $broker_creds_file )
 
 echo "-----> `date`: Use SB CLI"

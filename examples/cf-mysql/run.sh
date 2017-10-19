@@ -23,7 +23,8 @@ bosh -n upload-stemcell "https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu
 
 echo "-----> `date`: Delete previous deployment"
 bosh -n -d cf-mysql-broker delete-deployment --force
-rm -f broker-creds.yml
+broker_creds_file=$example_dir/broker-creds.yml
+rm -f $broker_creds_file
 
 echo "-----> `date`: Deploy"
 ( set -e
@@ -31,8 +32,8 @@ echo "-----> `date`: Deploy"
   bosh -n -d cf-mysql-broker deploy ./manifests/broker.yml -o ./manifests/dev.yml \
   -v director_ip=192.168.50.6 \
   -v director_client=admin \
-  -v director_client_secret=$(bosh int ~/workspace/deployments/vbox/creds.yml --path /admin_password) \
-  --var-file director_ssl.ca=<(bosh int ~/workspace/deployments/vbox/creds.yml --path /director_ssl/ca) \
+  -v director_client_secret=$(bosh int $director_creds_file --path /admin_password) \
+  --var-file director_ssl.ca=<(bosh int $director_creds_file --path /director_ssl/ca) \
   -v broker_name=cf-mysql-broker \
   -v srv_id=cf-mysql \
   -v srv_name="CF MySQL" \

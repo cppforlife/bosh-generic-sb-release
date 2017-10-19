@@ -1,3 +1,11 @@
 - type: replace
+  path: /releases/name=zookeeper
+  value:
+    name: zookeeper
+    version: 0.0.7
+    url: https://bosh.io/d/github.com/cppforlife/zookeeper-release?v=0.0.7
+    sha1: a863ef216ea75d22950703a3c924959cb20e59ba
+
+- type: replace
   path: /stemcells/alias=default/version
-  value: 3445.7
+  value: latest

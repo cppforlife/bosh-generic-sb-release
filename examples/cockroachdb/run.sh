@@ -23,7 +23,8 @@ bosh -n upload-stemcell "https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu
 
 echo "-----> `date`: Delete previous deployment"
 bosh -n -d cockroachdb-broker delete-deployment --force
-rm -f broker-creds.yml
+broker_creds_file=$example_dir/broker-creds.yml
+rm -f $broker_creds_file
 
 echo "-----> `date`: Deploy"
 ( set -e
@@ -31,16 +32,16 @@ echo "-----> `date`: Deploy"
   bosh -n -d cockroachdb-broker deploy ./manifests/broker.yml -o ./manifests/dev.yml \
   -v director_ip=192.168.50.6 \
   -v director_client=admin \
-  -v director_client_secret=$(bosh int ~/workspace/deployments/vbox/creds.yml --path /admin_password) \
-  --var-file director_ssl.ca=<(bosh int ~/workspace/deployments/vbox/creds.yml --path /director_ssl/ca) \
+  -v director_client_secret=$(bosh int $director_creds_file --path /admin_password) \
+  --var-file director_ssl.ca=<(bosh int $director_creds_file --path /director_ssl/ca) \
   -v broker_name=cockroachdb-broker \
   -v srv_id=cockroachdb \
   -v srv_name=CockroachDB \
   -v srv_description=CockroachDB \
-  --var-file si_manifest=<(cat examples/cockroachdb/service-instance.yml|base64) \
+  --var-file si_manifest=<(cat $example_dir/service-instance.yml|base64) \
   -v si_params=null \
-  --var-file sb_manifest=<(cat examples/cockroachdb/service-binding.yml|base64) \
-  --var-file sb_params=<(cat examples/cockroachdb/service-binding-params.yml|base64) \
+  --var-file sb_manifest=<(cat $example_dir/service-binding.yml|base64) \
+  --var-file sb_params=<(cat $example_dir/service-binding-params.yml|base64) \
   --vars-store $broker_creds_file )
 
 echo "-----> `date`: Use SB CLI"
