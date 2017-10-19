@@ -39,7 +39,7 @@ echo "-----> `date`: Deploy"
   -v srv_id=zookeeper \
   -v srv_name=Zookeeper \
   -v srv_description=Zookeeper \
-  --var-file si_manifest=<(wget -O- https://raw.githubusercontent.com/cppforlife/zookeeper-release/master/manifests/zookeeper.yml|bosh int - -o examples/zookeeper/fixes.yml|base64) \
+  --var-file si_manifest=<(wget -O- https://raw.githubusercontent.com/cppforlife/zookeeper-release/master/manifests/zookeeper.yml|bosh int - -o $example_dir/fixes.yml|base64) \
   --var-file si_params=<(cat $example_dir/service-instance-params.yml|base64) \
   -v sb_manifest=null \
   -v sb_params=null \

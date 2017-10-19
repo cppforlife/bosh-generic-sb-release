@@ -40,7 +40,7 @@ echo "-----> `date`: Deploy"
   -v srv_id=cf-mysql \
   -v srv_name="CF MySQL" \
   -v srv_description="CF MySQL" \
-  --var-file si_manifest=<(wget -O- https://raw.githubusercontent.com/cloudfoundry/cf-mysql-deployment/develop/cf-mysql-deployment.yml|bosh int - -o examples/cf-mysql/fixes.yml|base64) \
+  --var-file si_manifest=<(wget -O- https://raw.githubusercontent.com/cloudfoundry/cf-mysql-deployment/develop/cf-mysql-deployment.yml|bosh int - -o $example_dir/fixes.yml|base64) \
   -v si_params=null \
   -v sb_manifest=null \
   -v sb_params=null \
