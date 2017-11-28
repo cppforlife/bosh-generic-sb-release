@@ -1,7 +1,11 @@
 - type: replace
-  path: /releases/name=cf-mysql/version
-  value: 36.3.0
+  path: /releases/name=cf-mysql
+  value:
+    name: cf-mysql
+    version: 36.7.0
+    url: https://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36.7.0
+    sha1: 3130fa20304dbc6a61397bdf1695ad038c483c52
 
 - type: replace
   path: /stemcells/alias=default/version
-  value: 3363.31
+  value: latest
